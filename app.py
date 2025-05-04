@@ -7,6 +7,12 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+# ---------- New Home Route ----------
+
+@app.route('/')
+def home():
+    return 'Hello, your Flask app is live!'
+
 # ---------- Utility Functions ----------
 
 def extract_text(pdf_file):
