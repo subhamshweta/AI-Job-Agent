@@ -3,9 +3,10 @@ import pdfplumber
 from docx import Document
 from flask_cors import CORS
 import os
+import openai
 
 app = Flask(__name__)
-CORS(app)
+openai.api_key = "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"
 
 # ---------- New Home Route ----------
 
@@ -98,8 +99,25 @@ def download_file():
     else:
         return jsonify({'error': 'No resume file available for download.'}), 404
 
+@app.route('/enhance', methods=['POST'])
+def enhance():
+    data = request.get_json()
+    bullet = data.get('bullet')
+    if not bullet:
+        return jsonify({'error': 'No bullet point provided.'}), 400
+    
+    # Enhance the bullet point
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a professional resume expert. Improve the following resume bullet point."},
+            {"role": "user", "content": bullet}
+        ]
+    )
+    improved = response['choices'][0]['message']['content']
+    return jsonify({'original': bullet, 'improved': improved})
 # ---------- Run the App ----------
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
 
