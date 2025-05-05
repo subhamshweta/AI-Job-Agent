@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Job Agent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+        }
+        #tips {
+            margin-top: 20px;
+            white-space: pre-line;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        #download-btn {
+            display: none;
+            margin-top: 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>AI Job Agent</h2>
+
+    <form id="resume-form">
+        <label for="file">Upload Your Resume (PDF):</label>
+        <input type="file" id="file" name="file" accept=".pdf" required>
+
+        <label for="jobRole">Enter Your Job Role:</label>
+        <input type="text" id="jobRole" name="jobRole" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="tips"></div>
+    <button id="download-btn">Download Improved Resume</button>
+
+    
+    <script> 
+        const form = document.getElementById('resume-form');
+        const tipsDiv = document.getElementById('tips');
+        const downloadBtn = document.getElementById('download-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            tipsDiv.textContent = "Processing...";
+
+            const fileInput = document.getElementById('file');
+            const jobRoleInput = document.getElementById('jobRole');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('jobRole', jobRoleInput.value);
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    tipsDiv.textContent = data.tips;
+                    downloadBtn.style.display = 'block';
+                } else {
+                    tipsDiv.textContent = data.error || 'An error occurred.';
+                    downloadBtn.style.display = 'none';
+                }
+            } catch (error) {
+                console.error(error);
+                tipsDiv.textContent = 'Something went wrong.';
+                downloadBtn.style.display = 'none';
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            window.open('http://127.0.0.1:5000/download', '_blank');
+        });
+    </script>
+
+</body>
+</html>
